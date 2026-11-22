@@ -1,0 +1,14 @@
+TASK MANAGER - MANUAL CHECKLIST
+
+1. Run START_WINDOWS.bat; wait for Started TaskManagerApplication.
+2. Open http://localhost:8081/tasks and check 5 demo tasks appear on first run.
+3. Click New task; create a task with title, description, category, priority and due date.
+4. Verify it appears in Overview; filter it by status or search title.
+5. Open task details, Edit and save updates.
+6. Click the completion circle; verify task moves to Completed and stats increase.
+7. Open http://localhost:8081/board and move another task across columns.
+8. Open http://localhost:8081/api/tasks; check JSON list and task IDs.
+9. Download CSV from the Overview quick link; open in Excel.
+10. Close the command window, reopen and verify changes persist.
+11. Run TEST_WINDOWS.bat; the expected terminal result is BUILD SUCCESSFUL.
+12. Upload only after completing these checks; do not include .data or .tools.

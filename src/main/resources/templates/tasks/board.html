@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kanban Board — Taskflow</title>
+  <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="kanban-body">
+<div class="board-shell">
+  <header class="board-header">
+    <a class="board-brand" th:href="@{/tasks}"><span class="brand-symbol">◈</span> Taskflow <span class="board-suffix">/ Board</span></a>
+    <div class="board-buttons"><a class="board-link" th:href="@{/tasks}">Overview</a><a class="board-create" th:href="@{/tasks/new}">+ New task</a></div>
+  </header>
+  <main class="board-main">
+    <div class="eyebrow">VISUAL PLANNING</div>
+    <h1>Make progress visible<span class="heading-dot">.</span></h1>
+    <p class="subtitle">Move tasks across your workflow. Every change is saved automatically.</p>
+    <div th:if="${success}" class="flash-message" role="status" th:text="${success}">Updated.</div>
+    <div class="kanban-columns">
+      <section class="kanban-column" aria-label="To do tasks">
+        <div class="column-title"><span class="column-color column-todo"></span><h2>To do</h2><span th:text="${#lists.size(todoTasks)}" class="column-count">0</span></div>
+        <p class="column-description">Planned work</p>
+        <div class="kanban-stack">
+          <article class="kanban-card" th:each="t : ${todoTasks}">
+            <div class="kanban-card-top"><span class="kanban-category" th:text="${t.category}">Work</span><span class="priority" th:classappend="|priority-${t.priority.name().toLowerCase()}|" th:text="${t.priority.label}">High</span></div>
+            <h3><a th:href="@{/tasks/{id}(id=${t.id})}" th:text="${t.title}">Task</a></h3>
+            <p th:if="${t.description != null && !t.description.isBlank()}" th:text="${t.description}" class="kanban-desc">Description</p>
+            <div class="kanban-bottom"><small th:if="${t.dueDate != null}" th:text="|Due ${#temporals.format(t.dueDate,'dd MMM')}|" th:classappend="${t.overdue} ? 'late' : ''">Due tomorrow</small><small th:if="${t.dueDate == null}">No due date</small>
+              <form method="post" th:action="@{/board/{id}/move(id=${t.id})}"><input type="hidden" name="status" value="IN_PROGRESS"><button type="submit" class="move-button">Start →</button></form></div>
+          </article>
+          <p th:if="${#lists.isEmpty(todoTasks)}" class="column-empty">You're all caught up here.</p>
+        </div>
+      </section>
+      <section class="kanban-column" aria-label="In progress tasks">
+        <div class="column-title"><span class="column-color column-progress"></span><h2>In progress</h2><span th:text="${#lists.size(inProgressTasks)}" class="column-count">0</span></div>
+        <p class="column-description">Currently working on</p>
+        <div class="kanban-stack">
+          <article class="kanban-card" th:each="t : ${inProgressTasks}">
+            <div class="kanban-card-top"><span class="kanban-category" th:text="${t.category}">Study</span><span class="priority" th:classappend="|priority-${t.priority.name().toLowerCase()}|" th:text="${t.priority.label}">Medium</span></div>
+            <h3><a th:href="@{/tasks/{id}(id=${t.id})}" th:text="${t.title}">Task</a></h3>
+            <p th:if="${t.description != null && !t.description.isBlank()}" th:text="${t.description}" class="kanban-desc">Description</p>
+            <div class="kanban-bottom"><small th:if="${t.dueDate != null}" th:text="|Due ${#temporals.format(t.dueDate,'dd MMM')}|" th:classappend="${t.overdue} ? 'late' : ''">Due tomorrow</small><small th:if="${t.dueDate == null}">No due date</small>
+              <form method="post" th:action="@{/board/{id}/move(id=${t.id})}"><input type="hidden" name="status" value="DONE"><button type="submit" class="move-button">Finish ✓</button></form></div>
+            <form method="post" th:action="@{/board/{id}/move(id=${t.id})}" class="kanban-back"><input type="hidden" name="status" value="TODO"><button type="submit">← Move back</button></form>
+          </article>
+          <p th:if="${#lists.isEmpty(inProgressTasks)}" class="column-empty">Pick a task to start.</p>
+        </div>
+      </section>
+      <section class="kanban-column" aria-label="Completed tasks">
+        <div class="column-title"><span class="column-color column-done"></span><h2>Completed</h2><span th:text="${#lists.size(doneTasks)}" class="column-count">0</span></div>
+        <p class="column-description">Wins worth celebrating</p>
+        <div class="kanban-stack">
+          <article class="kanban-card" th:each="t : ${doneTasks}">
+            <div class="kanban-card-top"><span class="kanban-category" th:text="${t.category}">Portfolio</span><span class="priority" th:classappend="|priority-${t.priority.name().toLowerCase()}|" th:text="${t.priority.label}">Low</span></div>
+            <h3><a th:href="@{/tasks/{id}(id=${t.id})}" th:text="${t.title}">Task</a></h3>
+            <p th:if="${t.description != null && !t.description.isBlank()}" th:text="${t.description}" class="kanban-desc">Description</p>
+            <div class="kanban-bottom"><small>Completed ✓</small>
+              <form method="post" th:action="@{/board/{id}/move(id=${t.id})}"><input type="hidden" name="status" value="TODO"><button type="submit" class="move-button">Reopen ↺</button></form></div>
+          </article>
+          <p th:if="${#lists.isEmpty(doneTasks)}" class="column-empty">Finished tasks will appear here.</p>
+        </div>
+      </section>
+    </div>
+    <p class="board-footnote">Local portfolio project · Saved to the embedded H2 database · Java 21 + Spring Boot</p>
+  </main>
+</div>
+</body></html>

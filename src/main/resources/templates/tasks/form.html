@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${editing} ? 'Edit task — Task Manager' : 'New task — Task Manager'">New task — Task Manager</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell"><aside class="sidebar">
+  <a class="brand" th:href="@{/tasks}"><span class="brand-symbol">◈</span><span>Taskflow<small>PROJECT MANAGER</small></span></a>
+  <p class="sidebar-label">WORKSPACE</p><nav><a class="side-link active" th:href="@{/tasks}"><span class="nav-symbol">▤</span> Overview</a><a class="side-link" th:href="@{/board}"><span class="nav-symbol">▦</span> Kanban board</a><a class="side-link" th:href="@{/tasks/new}"><span class="nav-symbol">＋</span> New task</a></nav>
+  <div class="sidebar-bottom"><div class="sidebar-card"><span class="small-light">KEEP MOVING</span><div class="sidebar-note">Small steps.<br>Big progress.</div><span class="muted-light">One task at a time.</span></div><span class="sidebar-footer">© 2025 TASKFLOW · JAVA / SPRING</span></div>
+</aside><main class="main-content"><div class="mobile-brand">◈ <b>Taskflow</b></div><header class="topbar">Dashboard <span class="topbar-slash">/</span> <span th:text="${editing} ? 'Edit task' : 'New task'">New task</span></header>
+  <div class="page-content form-page"><a class="back-link" th:href="@{/tasks}">← Back to overview</a><div class="eyebrow">TASK DETAILS</div><h1 th:text="${editing} ? 'Edit your task.' : 'Create a new task.'">Create a new task.</h1><p class="subtitle" th:text="${editing} ? 'Update the details and keep your work organized.' : 'Capture what needs to get done, and set your priorities.'">Capture what needs to get done.</p>
+    <div class="editor-card"><form method="post" th:object="${form}" th:action="${editing} ? @{/tasks/{id}(id=${taskId})} : @{/tasks}">
+      <div class="editor-section-head"><span class="editor-mark">01</span><div><h2>Basic information</h2><p>The key details of your task.</p></div></div>
+      <div class="mb-4"><label class="form-label" for="title">Task title <span class="required">*</span></label><input id="title" type="text" class="form-control input-custom" th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''" th:field="*{title}" maxlength="120" placeholder="e.g. Finish portfolio project" required autofocus>
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Enter task title</div></div>
+      <div class="mb-4"><label for="description" class="form-label">Description</label><textarea id="description" rows="4" class="form-control input-custom" th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''" th:field="*{description}" maxlength="1500" placeholder="Add details, notes, or acceptance criteria..."></textarea><div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div></div>
+      <div class="editor-divider"></div><div class="editor-section-head"><span class="editor-mark">02</span><div><h2>Organization</h2><p>Set a clear priority and target date.</p></div></div>
+      <div class="form-grid"><div><label class="form-label" for="status">Status <span class="required">*</span></label><select class="form-select input-custom" id="status" th:field="*{status}"><option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}">To do</option></select></div>
+        <div><label class="form-label" for="priority">Priority <span class="required">*</span></label><select class="form-select input-custom" id="priority" th:field="*{priority}"><option th:each="p : ${priorities}" th:value="${p.name()}" th:text="${p.label}">Medium</option></select></div>
+        <div><label class="form-label" for="category">Category <span class="required">*</span></label><input class="form-control input-custom" th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''" id="category" th:field="*{category}" maxlength="40" list="category-options" placeholder="Work, Study, Personal..." required><datalist id="category-options"><option value="Work"></option><option value="Study"></option><option value="Personal"></option><option value="Development"></option><option value="Portfolio"></option></datalist><div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div></div>
+        <div><label class="form-label" for="dueDate">Due date</label><input type="date" class="form-control input-custom" id="dueDate" th:field="*{dueDate}"><div class="invalid-feedback" th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></div></div></div>
+      <div class="editor-footer"><a class="cancel-link" th:href="@{/tasks}">Cancel</a><button class="btn-add" type="submit"><span th:text="${editing} ? 'Save changes' : 'Create task'">Create task</span> <span>→</span></button></div>
+    </form></div><footer class="page-footer"><span>Task Manager · Portfolio project · 2025</span><span>Changes are stored automatically</span></footer>
+  </div>
+</main></div>
+<script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</body></html>

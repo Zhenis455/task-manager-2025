@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Manager — Overview</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" th:href="@{/tasks}"><span class="brand-symbol">◈</span><span>Taskflow<small>PROJECT MANAGER</small></span></a>
+    <p class="sidebar-label">WORKSPACE</p>
+    <nav aria-label="Main navigation">
+      <a class="side-link active" th:href="@{/tasks}"><span class="nav-symbol">▤</span> Overview <span class="nav-count" th:text="${stats.total()}">5</span></a>
+      <a class="side-link" th:href="@{/board}"><span class="nav-symbol">▦</span> Kanban board</a>
+      <a class="side-link" th:href="@{/tasks(status='TODO')}"><span class="nav-symbol">◷</span> To do</a>
+      <a class="side-link" th:href="@{/tasks(status='IN_PROGRESS')}"><span class="nav-symbol">◉</span> In progress</a>
+      <a class="side-link" th:href="@{/tasks(status='DONE')}"><span class="nav-symbol">✓</span> Completed</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="sidebar-card"><span class="small-light">YOUR PROGRESS</span>
+      <div class="progress-number" th:text="|${stats.percentage()}%|">20%</div>
+      <div class="progress-track"><div class="progress-fill" th:style="|width:${stats.percentage()}%|"></div></div>
+      <span class="muted-light">Every task is a step forward.</span>
+    </div><span class="sidebar-footer">© 2025 TASKFLOW · JAVA / SPRING</span></div>
+  </aside>
+
+  <main class="main-content">
+    <div class="mobile-brand">◈ <b>Taskflow</b></div>
+    <header class="topbar"><span>Dashboard <span class="topbar-slash">/</span> Overview</span><span class="today-pill" th:text="${#temporals.format(today, 'EEEE, dd MMM yyyy')}">Sunday</span></header>
+    <div class="page-content">
+      <div class="page-heading"><div><div class="eyebrow">YOUR WORKSPACE</div><h1>Stay on top of your tasks<span class="heading-dot">.</span></h1><p class="subtitle">Plan your day, track progress, and get things done.</p></div>
+        <a class="btn-add" th:href="@{/tasks/new}"><span class="plus">+</span> New task</a></div>
+      <div th:if="${success}" class="flash-message" role="status"><span>✓</span> <span th:text="${success}">Saved.</span></div>
+      <section class="stats-grid" aria-label="Task statistics">
+        <div class="stat-card"><div class="stat-top"><span>All tasks</span><span class="stat-icon stat-purple">▤</span></div><strong th:text="${stats.total()}">5</strong><small>Across all categories</small></div>
+        <div class="stat-card"><div class="stat-top"><span>To do</span><span class="stat-icon stat-orange">◷</span></div><strong th:text="${stats.todo()}">3</strong><small>Waiting to be started</small></div>
+        <div class="stat-card"><div class="stat-top"><span>In progress</span><span class="stat-icon stat-blue">◉</span></div><strong th:text="${stats.progress()}">1</strong><small>Currently active</small></div>
+        <div class="stat-card"><div class="stat-top"><span>Completed</span><span class="stat-icon stat-green">✓</span></div><strong th:text="${stats.done()}">1</strong><small>Successfully finished</small></div>
+      </section>
+      <section class="task-panel">
+        <div class="panel-heading"><div><h2>Tasks <span class="panel-counter" th:text="${#lists.size(tasks)}">5</span></h2><p>Keep everything organized in one place.</p></div><span class="overdue-pill" th:if="${stats.overdue() > 0}" th:text="|${stats.overdue()} overdue|">1 overdue</span></div>
+        <div class="toolbar"><div class="list-links"><a th:href="@{/board}" class="quick-link">▦ Kanban board</a><a th:href="@{/tasks/export.csv}" class="quick-link">↓ Export CSV</a></div><form th:action="@{/tasks}" method="get" class="filter-form">
+          <label class="search-wrap"><span>⌕</span><input type="search" name="q" maxlength="120" placeholder="Search tasks or category..." th:value="${q}" aria-label="Search tasks"></label>
+          <select name="status" aria-label="Filter status"><option value="">All statuses</option><option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}" th:selected="${selectedStatus == s}">To do</option></select>
+          <select name="priority" aria-label="Filter priority"><option value="">All priorities</option><option th:each="p : ${priorities}" th:value="${p.name()}" th:text="${p.label}" th:selected="${selectedPriority == p}">High</option></select>
+          <button class="filter-button" type="submit">Filter</button><a class="reset-button" th:href="@{/tasks}" title="Reset filters">Reset</a>
+        </form></div>
+        <div th:if="${#lists.isEmpty(tasks)}" class="empty-state"><div class="empty-icon">☷</div><h3>No tasks found</h3><p>Create your first task or try different filters.</p><a th:href="@{/tasks/new}" class="btn-add">+ Create task</a></div>
+        <div th:unless="${#lists.isEmpty(tasks)}" class="task-list">
+          <article class="task-row" th:each="task : ${tasks}" th:classappend="${task.status.name() == 'DONE'} ? 'is-complete' : ''">
+            <form method="post" th:action="@{/tasks/{id}/complete(id=${task.id})}" class="check-form">
+              <button type="submit" class="task-check" th:classappend="${task.status.name() == 'DONE'} ? ' checked' : ''" th:aria-label="${task.status.name() == 'DONE'} ? 'Mark task as not completed' : 'Mark task complete'" th:title="${task.status.name() == 'DONE'} ? 'Reopen task' : 'Mark complete'">✓</button>
+            </form>
+            <div class="task-info"><div class="task-title-row"><a class="task-title" th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}">Task title</a>
+              <span class="status-badge" th:classappend="|status-${task.status.name().toLowerCase()}|" th:text="${task.status.label}">To do</span></div>
+              <p th:if="${task.description != null && !task.description.isBlank()}" class="task-desc" th:text="${task.description}">Description</p>
+              <div class="task-meta"><span class="meta-category"><span class="meta-dot">●</span> <span th:text="${task.category}">Work</span></span>
+                <span class="meta-divider">·</span><span th:if="${task.dueDate != null}" th:classappend="${task.overdue} ? 'late' : ''">▦ <span th:text="${#temporals.format(task.dueDate, 'dd MMM yyyy')}">30 Oct 2025</span></span>
+                <span th:if="${task.dueDate == null}">No deadline</span>
+              </div>
+            </div>
+            <div class="task-actions"><span class="priority" th:classappend="|priority-${task.priority.name().toLowerCase()}|" th:text="|● ${task.priority.label}|">● High</span>
+              <a class="icon-action" th:href="@{/tasks/{id}/edit(id=${task.id})}" th:aria-label="|Edit ${task.title}|" title="Edit">✎</a>
+              <form method="post" th:action="@{/tasks/{id}/delete(id=${task.id})}" data-confirm-delete><button class="icon-action delete-action" type="submit" th:aria-label="|Delete ${task.title}|" title="Delete">×</button></form>
+            </div>
+          </article>
+        </div>
+        <div class="panel-footer"><span th:text="|Showing ${#lists.size(tasks)} tasks|">Showing tasks</span><span>Built with Spring Boot + Thymeleaf + Bootstrap</span></div>
+      </section>
+      <footer class="page-footer"><span>Task Manager · Portfolio project · 2025</span><span>Locally stored, no account required</span></footer>
+    </div>
+  </main>
+</div>
+<script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

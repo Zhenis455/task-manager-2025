@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="|${task.title} — Taskflow|">Task details — Taskflow</title>
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="kanban-body">
+<div class="board-shell">
+  <header class="board-header"><a class="board-brand" th:href="@{/tasks}"><span class="brand-symbol">◈</span> Taskflow</a><div class="board-buttons"><a class="board-link" th:href="@{/board}">Board</a><a class="board-create" th:href="@{/tasks/new}">+ New task</a></div></header>
+  <main class="board-main"><a class="back-link" th:href="@{/tasks}">← All tasks</a>
+    <article class="details-panel"><div class="eyebrow">TASK DETAILS</div><h1 th:text="${task.title}">Task</h1>
+      <p th:if="${task.description != null && !task.description.isBlank()}" class="details-description" th:text="${task.description}">Description</p>
+      <p th:if="${task.description == null || task.description.isBlank()}" class="details-description">No description provided.</p>
+      <div class="details-fields">
+        <div><span class="details-label">Status</span><strong th:text="${task.status.label}">To do</strong></div>
+        <div><span class="details-label">Priority</span><strong th:text="${task.priority.label}">High</strong></div>
+        <div><span class="details-label">Category</span><strong th:text="${task.category}">Study</strong></div>
+        <div><span class="details-label">Deadline</span><strong th:text="${task.dueDate == null ? 'None' : #temporals.format(task.dueDate, 'dd MMM yyyy')}">None</strong></div>
+        <div><span class="details-label">Created</span><strong th:text="${task.createdAt == null ? '-' : #temporals.format(task.createdAt, 'dd MMM yyyy HH:mm')}">Created</strong></div>
+        <div><span class="details-label">Completed</span><strong th:text="${task.completedAt == null ? '-' : #temporals.format(task.completedAt, 'dd MMM yyyy HH:mm')}">Completed</strong></div>
+      </div><div class="details-actions"><a class="board-create" th:href="@{/tasks/{id}/edit(id=${task.id})}">Edit task</a><form method="post" th:action="@{/tasks/{id}/complete(id=${task.id})}"><button class="details-toggle" type="submit" th:text="${task.status.name() == 'DONE'} ? 'Reopen task' : 'Mark completed'">Mark completed</button></form>
+        <form method="post" th:action="@{/tasks/{id}/delete(id=${task.id})}" data-confirm-delete><button class="details-delete" type="submit">Delete</button></form></div>
+    </article>
+  </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body></html>
